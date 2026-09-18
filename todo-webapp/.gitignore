@@ -1,0 +1,10 @@
+node_modules
+dist
+
+# The runner's per-clone $GIT_DIR/info/exclude carries an unanchored `core.*`
+# pattern for crash dumps (`core.<pid>`) that collides with
+# src/authz/core.ts — a filename thunder-authentication's assets prescribe
+# verbatim and that every other authz module imports by that path. A
+# .gitignore negation outranks $GIT_DIR/info/exclude in git's precedence
+# order, so this un-ignores it rather than renaming a prescribed file.
+!src/authz/core.ts
