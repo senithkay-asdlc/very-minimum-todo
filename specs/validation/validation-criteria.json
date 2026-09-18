@@ -1,0 +1,54 @@
+{
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "statement": "A user must sign in before using the app, and their todos are kept private to them",
+      "stories": [1],
+      "criteria": [
+        { "id": "AC-001-a", "must": "An unauthenticated visitor cannot view or manage any todos", "method": "e2e" },
+        { "id": "AC-001-b", "must": "A signed-in user only sees their own todos, never another user's", "method": "e2e" },
+        { "id": "AC-001-c", "must": "A user's todos are still present after signing out and signing back in", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "statement": "A user can add a todo",
+      "stories": [2],
+      "criteria": [
+        { "id": "AC-002-a", "must": "Adding a todo with a title creates it and shows it in the user's list", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "statement": "A user can view their list of todos, seeing what's pending and what's done",
+      "stories": [3],
+      "criteria": [
+        { "id": "AC-003-a", "must": "The todo list distinguishes pending todos from done todos", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "statement": "A user can mark a todo as done",
+      "stories": [4],
+      "criteria": [
+        { "id": "AC-004-a", "must": "Marking a pending todo as done changes its status to done", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "statement": "A user can unmark a todo they previously marked done",
+      "stories": [5],
+      "criteria": [
+        { "id": "AC-005-a", "must": "Unmarking a done todo changes its status back to pending", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "statement": "Todos are persisted in a database so they survive across sessions and devices",
+      "stories": [1, 2],
+      "criteria": [
+        { "id": "AC-006-a", "must": "A todo created in one session is still present after reloading the app in a new session", "method": "e2e" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  version: 0.1.0
+  description: Manages a signed-in user's own todo items.
+servers:
+  - url: /
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: /oauth2/authorize
+          tokenUrl: /oauth2/token
+          scopes:
+            todos:read: The caller's own todos
+            todos:create: Add a new todo
+            todos:update: Change a todo's done state
+  schemas:
+    Todo:
+      type: object
+      required: [id, title, done, createdAt]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        done: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    NewTodo:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string }
+    TodoUpdate:
+      type: object
+      required: [done]
+      properties:
+        done: { type: boolean }
+    TodoList:
+      type: object
+      required: [count, data]
+      properties:
+        count: { type: integer, description: total matching items }
+        next: { type: string, nullable: true, description: relative URI of the next page }
+        previous: { type: string, nullable: true, description: relative URI of the previous page }
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Todo' }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: integer, description: HTTP or application error code }
+        message: { type: string, description: short human-readable label }
+        description: { type: string, description: detailed explanation }
+        moreInfo: { type: string, description: URI to documentation }
+security:
+  - oauth2: []
+paths:
+  /me/todos:
+    get:
+      operationId: listMyTodos
+      summary: The caller's todos
+      security:
+        - oauth2: [todos:read]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Matching todos
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TodoList' }
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      operationId: createMyTodo
+      summary: Add a new todo for the caller
+      security:
+        - oauth2: [todos:create]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NewTodo' }
+      responses:
+        '201':
+          description: Todo created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Todo' }
+        '400':
+          description: Invalid todo
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /me/todos/{todoId}:
+    patch:
+      operationId: updateMyTodo
+      summary: Change one of the caller's todos to done or not-done
+      security:
+        - oauth2: [todos:update]
+      parameters:
+        - name: todoId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TodoUpdate' }
+      responses:
+        '200':
+          description: Todo updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Todo' }
+        '404':
+          description: No such todo for the caller
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Not signed in
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
